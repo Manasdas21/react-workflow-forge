@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Workflow, Download, Upload } from 'lucide-react';
 import { useWorkflowStore } from '../stores/useWorkflowStore';
 import WorkflowValidation from './WorkflowValidation';
 
 const Topbar: React.FC = () => {
-  const { nodes, edges, clearChat } = useWorkflowStore();
+  const { nodes, edges, clearChat, setNodes, setEdges } = useWorkflowStore();
 
   const exportWorkflow = () => {
     const workflowData = {
@@ -43,11 +42,23 @@ const Topbar: React.FC = () => {
         reader.onload = (e) => {
           try {
             const workflowData = JSON.parse(e.target?.result as string);
-            // This would need to be implemented in the store
-            console.log('Import workflow:', workflowData);
-            alert('Import functionality would be implemented here');
+            
+            // Validate the imported data structure
+            if (workflowData.nodes && workflowData.edges && Array.isArray(workflowData.nodes) && Array.isArray(workflowData.edges)) {
+              // Clear existing workflow
+              clearChat();
+              
+              // Import nodes and edges
+              setNodes(workflowData.nodes);
+              setEdges(workflowData.edges);
+              
+              console.log('Workflow imported successfully:', workflowData.metadata);
+            } else {
+              throw new Error('Invalid workflow file structure');
+            }
           } catch (error) {
-            alert('Invalid workflow file');
+            console.error('Error importing workflow:', error);
+            alert('Invalid workflow file. Please select a valid workflow JSON file.');
           }
         };
         reader.readAsText(file);
