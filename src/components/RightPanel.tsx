@@ -2,6 +2,7 @@
 import React from 'react';
 import { Settings, X } from 'lucide-react';
 import { useWorkflowStore } from '../stores/useWorkflowStore';
+import { NodeData } from '../stores/useWorkflowStore';
 
 const RightPanel: React.FC = () => {
   const { selectedNode, updateNodeConfig, setSelectedNode } = useWorkflowStore();
@@ -17,10 +18,10 @@ const RightPanel: React.FC = () => {
       );
     }
 
-    const { data } = selectedNode;
-    const config = data.config || {};
+    const nodeData = selectedNode.data as NodeData;
+    const config = nodeData.config || {};
 
-    switch (data.type) {
+    switch (nodeData.type) {
       case 'userQuery':
         return (
           <div className="space-y-4">
@@ -204,7 +205,7 @@ const RightPanel: React.FC = () => {
       <div className="flex-1 p-4 overflow-y-auto">
         {selectedNode && (
           <div className="mb-6">
-            <h3 className="font-medium text-gray-900 mb-2">{selectedNode.data.label}</h3>
+            <h3 className="font-medium text-gray-900 mb-2">{(selectedNode.data as NodeData).label}</h3>
             <p className="text-sm text-gray-600 mb-4">
               Node ID: {selectedNode.id}
             </p>

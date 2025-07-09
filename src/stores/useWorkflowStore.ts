@@ -9,26 +9,26 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-export interface NodeData {
+export interface NodeData extends Record<string, unknown> {
   label: string;
   type: string;
   config?: Record<string, any>;
 }
 
 interface WorkflowState {
-  nodes: Node<NodeData>[];
+  nodes: Node[];
   edges: Edge[];
-  selectedNode: Node<NodeData> | null;
+  selectedNode: Node | null;
   chatMessages: ChatMessage[];
   isExecuting: boolean;
   
   // Actions
-  setNodes: (nodes: Node<NodeData>[]) => void;
+  setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   onNodesChange: (changes: any[]) => void;
   onEdgesChange: (changes: any[]) => void;
   onConnect: (connection: Connection) => void;
-  setSelectedNode: (node: Node<NodeData> | null) => void;
+  setSelectedNode: (node: Node | null) => void;
   updateNodeConfig: (nodeId: string, config: Record<string, any>) => void;
   addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
   executeWorkflow: (userInput: string) => Promise<void>;

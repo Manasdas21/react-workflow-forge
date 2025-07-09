@@ -4,8 +4,9 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Cpu } from 'lucide-react';
 import { NodeData } from '../../stores/useWorkflowStore';
 
-const LLMEngineNode: React.FC<NodeProps<NodeData>> = ({ data, selected }) => {
-  const provider = data.config?.provider || 'OpenAI';
+const LLMEngineNode: React.FC<NodeProps> = ({ data, selected }) => {
+  const nodeData = data as NodeData;
+  const provider = nodeData.config?.provider || 'OpenAI';
   
   return (
     <div className={`px-4 py-3 shadow-lg rounded-lg bg-white border-2 min-w-[180px] ${
@@ -16,7 +17,7 @@ const LLMEngineNode: React.FC<NodeProps<NodeData>> = ({ data, selected }) => {
           <Cpu className="w-4 h-4 text-blue-600" />
         </div>
         <div>
-          <div className="font-medium text-sm text-gray-900">{data.label}</div>
+          <div className="font-medium text-sm text-gray-900">{nodeData.label}</div>
           <div className="text-xs text-gray-500">{provider}</div>
         </div>
       </div>
