@@ -1,12 +1,21 @@
 
 import { create } from 'zustand';
-import { Node, Edge, Connection, addEdge } from '@xyflow/react';
+import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges } from '@xyflow/react';
 
 export interface ChatMessage {
   id: string;
   type: 'user' | 'system';
   content: string;
   timestamp: Date;
+}
+
+export interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  uploadedAt: Date;
 }
 
 export interface NodeData extends Record<string, unknown> {
@@ -16,21 +25,24 @@ export interface NodeData extends Record<string, unknown> {
 }
 
 interface WorkflowState {
-  nodes: Node[];
+  nodes: Node<NodeData>[];
   edges: Edge[];
-  selectedNode: Node | null;
+  selectedNode: Node<NodeData> | null;
   chatMessages: ChatMessage[];
+  uploadedFiles: UploadedFile[];
   isExecuting: boolean;
   
   // Actions
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: Node<NodeData>[]) => void;
   setEdges: (edges: Edge[]) => void;
   onNodesChange: (changes: any[]) => void;
   onEdgesChange: (changes: any[]) => void;
   onConnect: (connection: Connection) => void;
-  setSelectedNode: (node: Node | null) => void;
+  setSelectedNode: (node: Node<NodeData> | null) => void;
   updateNodeConfig: (nodeId: string, config: Record<string, any>) => void;
   addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
+  addUploadedFile: (file: Omit<UploadedFile, 'id' | 'uploadedAt'>) => void;
+  removeUploadedFile: (fileId: string) => void;
   executeWorkflow: (userInput: string) => Promise<void>;
   clearChat: () => void;
 }
@@ -40,6 +52,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   edges: [],
   selectedNode: null,
   chatMessages: [],
+  uploadedFiles: [],
   isExecuting: false,
 
   setNodes: (nodes) => set({ nodes }),
@@ -47,14 +60,12 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   
   onNodesChange: (changes) => {
     const { nodes } = get();
-    // Apply changes to nodes (this would normally use applyNodeChanges from React Flow)
-    set({ nodes: [...nodes] });
+    set({ nodes: applyNodeChanges(changes, nodes) });
   },
   
   onEdgesChange: (changes) => {
     const { edges } = get();
-    // Apply changes to edges (this would normally use applyEdgeChanges from React Flow)
-    set({ edges: [...edges] });
+    set({ edges: applyEdgeChanges(changes, edges) });
   },
   
   onConnect: (connection) => {
@@ -68,7 +79,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     const { nodes } = get();
     const updatedNodes = nodes.map(node => 
       node.id === nodeId 
-        ? { ...node, data: { ...node.data, config: { ...node.data.config, ...config } } }
+        ? { ...node, data: { ...node.data, config: { ...(node.data.config || {}), ...config } } }
         : node
     );
     set({ nodes: updatedNodes });
@@ -82,6 +93,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
       timestamp: new Date(),
     };
     set({ chatMessages: [...chatMessages, newMessage] });
+  },
+
+  addUploadedFile: (file) => {
+    const { uploadedFiles } = get();
+    const newFile: UploadedFile = {
+      ...file,
+      id: Date.now().toString(),
+      uploadedAt: new Date(),
+    };
+    set({ uploadedFiles: [...uploadedFiles, newFile] });
+  },
+
+  removeUploadedFile: (fileId) => {
+    const { uploadedFiles } = get();
+    set({ uploadedFiles: uploadedFiles.filter(file => file.id !== fileId) });
   },
   
   executeWorkflow: async (userInput: string) => {
