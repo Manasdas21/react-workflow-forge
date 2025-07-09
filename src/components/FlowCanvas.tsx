@@ -12,7 +12,7 @@ import {
   Node,
   Edge,
 } from '@xyflow/react';
-import { useWorkflowStore } from '../stores/useWorkflowStore';
+import { useWorkflowStore, NodeData } from '../stores/useWorkflowStore';
 import UserQueryNode from './nodes/UserQueryNode';
 import KnowledgeBaseNode from './nodes/KnowledgeBaseNode';
 import LLMEngineNode from './nodes/LLMEngineNode';
@@ -78,7 +78,7 @@ const FlowCanvas: React.FC = () => {
           y: event.clientY - reactFlowBounds.top - 50,
         };
 
-        const newNode: Node = {
+        const newNode: Node<NodeData> = {
           id: `${nodeType}-${Date.now()}`,
           type: nodeType,
           position,
@@ -98,7 +98,7 @@ const FlowCanvas: React.FC = () => {
   );
 
   const onNodeClick = useCallback(
-    (event: React.MouseEvent, node: Node) => {
+    (event: React.MouseEvent, node: Node<NodeData>) => {
       setSelectedNode(node);
     },
     [setSelectedNode]
