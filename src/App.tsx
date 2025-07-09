@@ -1,27 +1,38 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+import React from 'react';
+import { ReactFlowProvider } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import Topbar from './components/Topbar';
+import LeftPanel from './components/LeftPanel';
+import FlowCanvas from './components/FlowCanvas';
+import RightPanel from './components/RightPanel';
+import ChatInterface from './components/ChatInterface';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  return (
+    <ReactFlowProvider>
+      <div className="h-screen flex flex-col bg-gray-50">
+        {/* Topbar */}
+        <Topbar />
+        
+        {/* Main Content Area */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left Panel - Component Library */}
+          <LeftPanel />
+          
+          {/* Center - Flow Canvas */}
+          <div className="flex-1 flex flex-col">
+            <FlowCanvas />
+            {/* Bottom Chat */}
+            <ChatInterface />
+          </div>
+          
+          {/* Right Panel - Configuration */}
+          <RightPanel />
+        </div>
+      </div>
+    </ReactFlowProvider>
+  );
+};
 
 export default App;
